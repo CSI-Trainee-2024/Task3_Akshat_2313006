@@ -103,17 +103,17 @@ class Invaders{
             }
     }
 
-    update() {
-      this.draw()  
+    update({velocity}) {
+      
      if(this.image){
-     this.position.x += this.velocity.x
-     this.position.y += this.velocity.y
+     this.position.x += velocity.x
+     this.position.y += velocity.y
+     this.draw()  
 
     }
   }
    
 }
-
 
 class Grid {
 
@@ -123,30 +123,32 @@ class Grid {
         y:0,
     }
     this.velocity={
-        x:0,
+        x:5,
         y:0
     }
    this.invaders = []
-   let rows = Math.random()*5 +1
-   let cols = Math.random()*10 +1
+   let rows = Math.floor(Math.random()*5 +2)
+   let cols = Math.floor(Math.random()*15 +5)
+   this.width = cols*30;
    for(let i=0;i<cols;i++){
       for(let j=0;j<rows;j++){
        this.invaders.push(new Invaders(i,j))
       }
    }
    
-
    }
    update(){
-
-   }
-
+      this.position.x += this.velocity.x
+      this.position.y += this.velocity.y
+      this.velocity.y = 0;
+    if(this.position.x + this.width >= canvas.width || this.position.x <=0){
+        this.velocity.x = -this.velocity.x
+        this.velocity.y =30
+    }
 }
-
+}
 const grid = new Grid()
 grids.push(grid)
-
-
 
 const ashwa = new Player();
 
@@ -163,8 +165,9 @@ function animate(){
     ashwa.draw()
     ashwa.update()
    grids.forEach(grid => {
+        grid.update();
         grid.invaders.forEach(inv =>{
-            inv.update()
+            inv.update({velocity : grid.velocity})
         })
    });
 
@@ -199,7 +202,7 @@ document.addEventListener('keydown',({key})=>{
         case ' ':
             console.log('space')
             keys.space.pressed = true
-            pushProjectile()
+            fireProjectile()
 
             break;
     }
@@ -226,17 +229,17 @@ document.addEventListener('keyup',({key})=>{
 
 document.addEventListener('mousedown',()=>{
     keys.space.pressed = true
-   pushProjectile()
+   fireProjectile()
 })
 
 
-function pushProjectile(){
+function fireProjectile(){
   
     projectiles.push(new Projectile({position:{
         x:ashwa.position.x+ashwa.width/2,
         y:ashwa.position.y
     },velocity:{
-        y:-5,
+        y:-15,
         x:0
     }}))
 }
