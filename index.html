@@ -7,7 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p id="scorePara"><span id="score">Score :</span> <span id="scoreNum">0</span></p>
+    <audio src="./assets/audio/backgroundMusic.wav" id="bgMusic"></audio>
+    <audio src="./assets/audio/enemyShoot.wav" id="enemyFire"></audio>
+    <audio src="./assets/audio/explode.wav"id="enemyDestroyed"></audio>
+    <audio src="./assets/audio/machinegun.mp3" id="playerFire"></audio>
+    <audio src="./assets/audio/gameover.mp3"id='gameOver'></audio>
+    <p id="scorePara"><span id="score">Score :</span> <span id="scoreNum">0</span>
+    <button id="startBtn">Start</button></p>
     <canvas></canvas>
     <script src="./index.js"></script>
 </body>

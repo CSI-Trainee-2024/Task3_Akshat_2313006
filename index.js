@@ -1,6 +1,12 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const scoreNum = document.getElementById('scoreNum')
+const bgMusic =document.getElementById('bgMusic')
+const enemyFire =document.getElementById('enemyFire')
+const playerFire =document.getElementById('playerFire')
+const enemyDestroyed =document.getElementById('enemyDestroyed')
+const startBtn = document.getElementById('startBtn')
+const gameOver= document.getElementById('gameOver')
 const projectiles = [];
 const grids = [];
 const enemyProjectiles = [];
@@ -13,6 +19,7 @@ window.addEventListener("resize", () => {
     canvas.height = window.innerHeight;
     ashwa.draw();
 })
+console.log(bgMusic)
 
 class Player {
     constructor() {
@@ -22,6 +29,7 @@ class Player {
         }
         this.alive = true;
         this.gameActive = true; 
+        this.startGame =false;
         const image = new Image()
         image.src = './assets/spaceship.png'
         image.onload = () => {
@@ -254,6 +262,7 @@ const keys = {
 
 function animate() {
     if(!ashwa.gameActive) return;
+     
     requestAnimationFrame(animate)
     ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -287,12 +296,13 @@ function animate() {
             enemyProjectile.position.x + enemyProjectile.width >= ashwa.position.x
         ) {
             ashwa.alive = false;
+            gameOver.play()
             setTimeout(() => {
                 ashwa.gameActive=false;
             }, 1000);
             
         }
-
+        
         enemyProjectile.update();
     })
     starsArr.forEach((s,i) => {
@@ -309,6 +319,7 @@ function animate() {
         }
         if (frames % 100 == 0 && grid.invaders.length > 0) {
             grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(enemyProjectiles);
+            enemyFire.play()
         }
         grid.invaders.forEach((inv, i) => {
             inv.update({ velocity: grid.velocity })
@@ -339,6 +350,7 @@ function animate() {
                     }
                     console.log(particles)
                     // Remove invader and projectile on collision
+                    enemyDestroyed.play()
                     score +=100;
                     scoreNum.innerHTML = score;
                     console.log(score)
@@ -395,7 +407,8 @@ document.addEventListener('keydown', ({ key }) => {
                 keys.space.pressed = false
             } else {
                 keys.space.pressed = true
-                fireProjectile()
+                fireProjectile();
+                playerFire.play()
             }
             break;
     }
@@ -427,6 +440,7 @@ document.addEventListener('mousedown', () => {
     } else {
         keys.space.pressed = true
         fireProjectile()
+        playerFire.play()
     }
 
 })
@@ -442,4 +456,6 @@ function fireProjectile() {
         }
     }))
 }
-
+startBtn.addEventListener('click',()=>{
+    ashwa.startGame = true
+})
