@@ -261,8 +261,10 @@ const keys = {
 
 
 function animate() {
+
+    if(ashwa.startGame){
     if(!ashwa.gameActive) return;
-     
+     bgMusic.play()
     requestAnimationFrame(animate)
     ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -296,6 +298,7 @@ function animate() {
             enemyProjectile.position.x + enemyProjectile.width >= ashwa.position.x
         ) {
             ashwa.alive = false;
+            ashwa.startGame=false;
             gameOver.play()
             setTimeout(() => {
                 ashwa.gameActive=false;
@@ -384,7 +387,11 @@ function animate() {
         frames = 0
     }
 
-    frames++
+    frames++}else{
+        requestAnimationFrame(animate)
+        ctx.fillStyle = 'black'
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 }
 animate()
 
@@ -403,7 +410,7 @@ document.addEventListener('keydown', ({ key }) => {
         case ' ':
             console.log('space')
 
-            if (!ashwa.alive) {
+            if (!ashwa.alive||!ashwa.startGame) {
                 keys.space.pressed = false
             } else {
                 keys.space.pressed = true
@@ -435,7 +442,7 @@ document.addEventListener('keyup', ({ key }) => {
 
 document.addEventListener('mousedown', () => {
 
-    if (!ashwa.alive) {
+    if (!ashwa.alive||!ashwa.startGame) {
         keys.space.pressed = false
     } else {
         keys.space.pressed = true
