@@ -2,6 +2,7 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const projectiles =[];
 const grids =[];
+const enemyProjectiles=[];
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 window.addEventListener("resize", () => {
@@ -16,6 +17,7 @@ class Player {
             x: 0,
             y: 0,
         }
+        this.alive = true;
         const image = new Image()
         image.src = './assets/spaceship.png'
         image.onload = () => {
@@ -28,7 +30,7 @@ class Player {
             }
         }   
     }
-    
+   
     draw() {
         
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -72,6 +74,25 @@ class Projectile {
         this.draw();
     }
 }
+class InvaderProjectile {
+    constructor({ position, velocity }) {
+        this.position = position;
+        this.velocity = velocity;
+        this.width = 3;
+        this.height= 10;
+    }
+
+    draw() {
+        ctx.fillStyle = 'purple';
+        ctx.fillRect(this.position.x,this.position.y,5,15)
+        ctx.fill();
+    }
+
+    update() {
+        this.position.y += this.velocity.y;
+        this.draw();
+    }
+}
 
 
 class Invaders{
@@ -104,13 +125,22 @@ class Invaders{
     }
 
     update({velocity}) {
-      
      if(this.image){
      this.position.x += velocity.x
      this.position.y += velocity.y
      this.draw()  
 
     }
+  }
+  shoot(enemyProjectiles){
+       enemyProjectiles.push(new InvaderProjectile({position:{
+        x: this.position.x+this.width/2,
+        y: this.position.y + this.height,
+       },
+    velocity:{
+        x:0,
+        y:5
+    }}))
   }
    
 }
@@ -147,9 +177,8 @@ class Grid {
     }
 }
 }
-const grid = new Grid()
-grids.push(grid)
-
+let frames =0;
+let randomInterval = Math.floor(Math.random()*500 + 500)
 const ashwa = new Player();
 
 const keys = {
@@ -158,16 +187,61 @@ const keys = {
     space: { pressed: false }
 };
 
+
+
 function animate(){
     requestAnimationFrame(animate)
     ctx.fillStyle='black'
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ashwa.draw()
-    ashwa.update()
-   grids.forEach(grid => {
+    if(ashwa.alive){
+        ashwa.draw()
+        ashwa.update()
+    }
+    enemyProjectiles.forEach((enemyProjectile,i)=>{
+        if(enemyProjectile.position.y+ enemyProjectile.height>=canvas.height){
+            enemyProjectiles.splice(i,1);
+            console.log(enemyProjectiles)
+        }
+        //Player With Enemy Bullets Collision Dectection
+        if (
+            enemyProjectile.position.y + enemyProjectile.height >= ashwa.position.y && 
+            enemyProjectile.position.y <= ashwa.position.y + ashwa.height   && 
+            enemyProjectile.position.x <= ashwa.position.x + ashwa.width && 
+            enemyProjectile.position.x + enemyProjectile.width >= ashwa.position.x 
+        ) {
+            ashwa.alive = false; 
+        }
+        
+       enemyProjectile.update();
+    })
+    grids.forEach((grid ,gridIndex) => {
         grid.update();
-        grid.invaders.forEach(inv =>{
+        if(/* grid.invaders.length ==0 ||  */grid.position.y >=canvas.height){
+            grids.splice(gridIndex,1)
+            console.log(`${grids}MyGrid`)
+        }
+        if(frames%100 == 0 && grid.invaders.length>0){
+            grid.invaders[Math.floor(Math.random()*grid.invaders.length)].shoot(enemyProjectiles);
+           }
+        grid.invaders.forEach((inv,i) =>{
             inv.update({velocity : grid.velocity})
+            
+            //Collision Detection Logic
+            projectiles.forEach((bullet,j)=>{
+                if (
+                    bullet.position.x + bullet.radius > inv.position.x &&
+                    bullet.position.x - bullet.radius < inv.position.x + inv.width &&
+                    bullet.position.y + bullet.radius > inv.position.y &&
+                    bullet.position.y - bullet.radius < inv.position.y + inv.height
+                ) {
+                    // Remove invader and projectile on collision
+                   
+                    grid.invaders.splice(i, 1);
+                    projectiles.splice(j, 1);
+                  
+                }
+            })
+            
         })
    });
 
@@ -184,6 +258,14 @@ function animate(){
     }else{
         ashwa.velocity.x =0
     }
+    if(frames %randomInterval === 0){
+        randomInterval = Math.floor(Math.random()*500 + 500)
+        console.log(randomInterval)
+        grids.push(new Grid)
+        frames =0
+    }
+
+    frames++
 }
 animate()
 
@@ -221,7 +303,7 @@ document.addEventListener('keyup',({key})=>{
             break;
 
         case ' ':
-            console.log(projectiles)
+            //console.log(projectiles)
             keys.space.pressed = false
             break;
     }
