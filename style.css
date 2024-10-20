@@ -5,10 +5,11 @@
 }
 canvas{
     display: block;
+    position: absolute;
 }
 #scorePara{
     position: fixed;
-   background: none;
+    background-color: black;
     z-index: 1;
     margin: 1em 1em;
     font-family: sans-serif;
@@ -24,5 +25,4 @@ canvas{
     padding: 0.3em 2em;
     margin-left: 1em;
     border-radius: 12px;
-    border: none;
 }
